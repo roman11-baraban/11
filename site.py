@@ -22,7 +22,7 @@ rooms = [
     {"id": 6, "room_type": "meeting_room", "equipment_class": "Видеоконф"},
 ]
 
-bookings = []  # заявки: {id, room_id, start_date, duration_days/hours, status}
+bookings = []
 
 # -----------------------
 # Логика
@@ -54,33 +54,129 @@ def create_booking(room_id: int, desired_date: date, duration_unit: str, duratio
     return booking
 
 # -----------------------
-# Веб‑сервер
+# HTML шаблон
+# -----------------------
+
+def page(content: str):
+    return f"""
+    <!doctype html>
+    <html lang="ru">
+    <head>
+      <meta charset="utf-8">
+      <title>Coworking Booking</title>
+      <style>
+        body {{
+          font-family: 'Segoe UI', sans-serif;
+          background: linear-gradient(180deg, #eef4ff, #f5f8ff);
+          color: #0f1b3d;
+          margin: 0;
+        }}
+        header {{
+          background:#e9f1ff;
+          padding:15px;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        }}
+        nav a {{
+          margin-left:15px;
+          text-decoration:none;
+          color:#2f6fed;
+          font-weight:600;
+        }}
+        main {{
+          max-width:900px;
+          margin:30px auto;
+          padding:20px;
+        }}
+        .card {{
+          background:#fff;
+          border-radius:12px;
+          padding:20px;
+          box-shadow:0 8px 20px rgba(47,111,237,0.15);
+          margin-bottom:20px;
+          transition:transform 0.2s;
+        }}
+        .card:hover {{ transform:translateY(-4px); }}
+        label {{
+          display:block;
+          margin:10px 0;
+          color:#0f1b3d;
+        }}
+        input, select {{
+          width:100%;
+          padding:10px;
+          border:1px solid #cdd9f7;
+          border-radius:8px;
+          margin-top:5px;
+        }}
+        button {{
+          background:#2f6fed;
+          color:white;
+          border:none;
+          padding:12px 20px;
+          border-radius:10px;
+          cursor:pointer;
+          font-size:15px;
+          transition:background 0.3s;
+        }}
+        button:hover {{ background:#5aa5ff; }}
+        ul {{ list-style:none; padding:0; }}
+        li {{ margin:5px 0; }}
+      </style>
+    </head>
+    <body>
+      <header>
+        <div><strong>Coworking</strong></div>
+        <nav>
+          <a href="/">Главная</a>
+          <a href="/bookings">Бронирование</a>
+        </nav>
+      </header>
+      <main>
+        {content}
+      </main>
+    </body>
+    </html>
+    """
+
+# -----------------------
+# Сервер
 # -----------------------
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
+            html = page("<h1>Современный коворкинг</h1><p>Добро пожаловать! Забронируйте рабочее место или переговорную.</p>")
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
             self.end_headers()
+            self.wfile.write(html.encode("utf-8"))
+
+        elif self.path == "/bookings":
             options_html = "".join([f'<option value="{t}">{label}</option>' for t, label in ALLOWED_TYPES])
-            html = f"""
-            <html><head><title>Coworking</title></head>
-            <body style="font-family:sans-serif;background:#eef4ff;color:#0f1b3d;">
-              <h1>Бронирование коворкинга</h1>
+            bookings_html = "".join([f"<li>#{b['id']} — комната {b['room_id']} — {b['start_date']}</li>" for b in bookings])
+            form_html = f"""
+            <div class="card">
+              <h2>Заявка на бронирование</h2>
               <form method="POST" action="/book">
-                <label>Тип помещения <select name="room_type">{options_html}</select></label><br>
-                <label>Дата начала <input type="date" name="start_date"></label><br>
-                <label>Единица <select name="duration_unit"><option value="days">Дни</option><option value="hours">Часы</option></select></label><br>
-                <label>Длительность <input type="number" name="duration_value" value="1"></label><br>
+                <label>Тип помещения <select name="room_type">{options_html}</select></label>
+                <label>Дата начала <input type="date" name="start_date"></label>
+                <label>Единица <select name="duration_unit"><option value="days">Дни</option><option value="hours">Часы</option></select></label>
+                <label>Длительность <input type="number" name="duration_value" value="1"></label>
                 <button type="submit">Забронировать</button>
               </form>
-              <h2>Все заявки:</h2>
-              <ul>
-                {''.join([f"<li>#{b['id']} комната {b['room_id']} дата {b['start_date']}</li>" for b in bookings])}
-              </ul>
-            </body></html>
+            </div>
+            <div class="card">
+              <h2>Все заявки</h2>
+              <ul>{bookings_html if bookings_html else "<li>Нет заявок</li>"}</ul>
+            </div>
             """
+            html = page(form_html)
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.end_headers()
             self.wfile.write(html.encode("utf-8"))
 
     def do_POST(self):
@@ -107,13 +203,14 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     message = "<p style='color:red'>Нет свободных помещений.</p>"
 
+            html = page(f"<div class='card'>{message}<p><a href='/bookings'>Назад</a></p></div>")
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(f"<html><body>{message}<br><a href='/'>Назад</a></body></html>".encode("utf-8"))
+            self.wfile.write(html.encode("utf-8"))
 
 # -----------------------
-# Запуск сервера
+# Запуск
 # -----------------------
 
 if __name__ == "__main__":
