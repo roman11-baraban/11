@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Главная — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div><strong>Coworking</strong></div>
+    <nav>
+      <a href="{{ url_for('index') }}">Главная</a>
+      <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+      <a href="{{ url_for('register') }}">Регистрация</a>
+      <a href="{{ url_for('login') }}">Вход</a>
+      <a href="{{ url_for('logout') }}">Выход</a>
+    </nav>
+  </header>
+  <main>
+    {% if user %}
+      <div class="card center">
+        <h1>Привет, {{ user }}!</h1>
+        <p>Добро пожаловать в коворкинг.</p>
+        <p><a href="{{ url_for('bookings_view') }}"><button>Перейти к бронированию</button></a></p>
+      </div>
+    {% else %}
+      <div class="card center">
+        <h1>Современный коворкинг</h1>
+        <p>Зарегистрируйтесь или войдите, чтобы бронировать помещения.</p>
+        <div style="margin-top:15px;">
+          <a href="{{ url_for('register') }}"><button>Регистрация</button></a>
+          <a href="{{ url_for('login') }}"><button class="secondary">Вход</button></a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Почему выбирают нас?</h2>
+        <ul>
+          <li>⚡ Быстрое онлайн‑бронирование</li>
+          <li>💻 Современные рабочие места</li>
+          <li>📅 Гибкие тарифы: часы или дни</li>
+          <li>☕ Зоны отдыха и кофе‑поинты</li>
+          <li>🌐 Высокоскоростной интернет</li>
+        </ul>
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>

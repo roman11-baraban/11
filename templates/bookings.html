@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Бронирование — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <header>
+    <div><strong>Coworking</strong></div>
+    <nav>
+      <a href="{{ url_for('index') }}">Главная</a>
+      <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+      <a href="{{ url_for('register') }}">Регистрация</a>
+      <a href="{{ url_for('login') }}">Вход</a>
+      <a href="{{ url_for('logout') }}">Выход</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Заявка на бронирование</h2>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <form id="booking-form" method="POST" action="{{ url_for('book') }}">
+        <label>Тип помещения
+          <select name="room_type" id="room_type">
+            <option value="workspace_open">Открытое рабочее место</option>
+            <option value="office_light">Кабинет «Лайт»</option>
+            <option value="office_premium">Кабинет «Премиум»</option>
+            <option value="meeting_room">Переговорная комната</option>
+          </select>
+        </label>
+        <label>Дата начала <input type="date" name="start_date" id="start_date" required></label>
+        <label>Единица
+          <select name="duration_unit" id="duration_unit">
+            <option value="days">Дни</option>
+            <option value="hours">Часы</option>
+          </select>
+        </label>
+        <label>Длительность <input type="number" name="duration_value" id="duration_value" value="1" min="1" required></label>
+        <button type="submit">Забронировать</button>
+      </form>
+
+      {% if alt_date or alt_type %}
+        <div class="alternatives">
+          <h3>🔄 Предложения по бронированию</h3>
+          <ul>
+            {% if alt_date %}
+              <li>📅 Ближайшая доступная дата: <strong>{{ alt_date.strftime("%d.%m.%Y") }}</strong></li>
+            {% endif %}
+            {% if alt_type %}
+              <li>🏢 На выбранную дату доступен другой тип помещения: <strong>{{ alt_type }}</strong></li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 📋 Мои заявки -->
+    <div class="card">
+      <h2>📋 Мои заявки</h2>
+      {% if bookings %}
+        <ul class="my-bookings">
+          {% for b in bookings %}
+            <li>
+              <span class="booking-id">#{{ b[0] }}</span>
+              <span class="booking-type">🏢 {{ b[1] }}</span>
+              <span class="booking-date">📅 {{ b[2] }}</span>
+              <span class="booking-duration">⏱ {{ b[4] }} {{ b[3] }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty">У тебя пока нет заявок. 🚀</p>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

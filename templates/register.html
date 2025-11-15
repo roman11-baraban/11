@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Регистрация — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div><strong>Coworking</strong></div>
+    <nav>
+      <a href="{{ url_for('index') }}">Главная</a>
+      <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+      <a href="{{ url_for('register') }}">Регистрация</a>
+      <a href="{{ url_for('login') }}">Вход</a>
+      <a href="{{ url_for('logout') }}">Выход</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Регистрация</h2>
+      <form method="POST" action="{{ url_for('register') }}">
+        <label>Логин <input type="text" name="username" required></label>
+        <label>Пароль <input type="password" name="password" required></label>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
