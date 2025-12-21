@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Доступность помещений — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking Admin</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('admin_panel') }}">Панель управления</a>
+          <a href="{{ url_for('admin_reports_bookings') }}">Отчеты по заявкам</a>
+          <a href="{{ url_for('admin_reports_availability') }}" class="active">Доступность</a>
+          <a href="{{ url_for('admin_users') }}">Пользователи</a>
+          <a href="{{ url_for('bookings_view') }}">Мои бронирования</a>
+          <a href="{{ url_for('logout') }}">Выход</a>
+        </nav>
+        <div class="user-info">
+          👑 {{ user.username }} (Админ)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Доступность помещений</h1>
+      <p class="page-description">Проверка занятости и свободных помещений</p>
+    </div>
+
+    <!-- Выбор даты -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Выбор даты</h2>
+      </div>
+      
+      <form method="GET" action="{{ url_for('admin_reports_availability') }}">
+        <div class="form-group">
+          <label for="date">Проверить доступность на дату:</label>
+          <input type="date" id="date" name="date" value="{{ target_date.strftime('%Y-%m-%d') }}" required>
+        </div>
+        
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary">
+            🔍 Проверить доступность
+          </button>
+          <button type="button" class="btn btn-outline" onclick="checkToday()">
+            📅 Сегодня
+          </button>
+          <button type="button" class="btn btn-outline" onclick="checkTomorrow()">
+            📆 Завтра
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Результаты проверки -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Результаты проверки</h2>
+        <div class="card-subtitle">
+          Дата: {{ target_date.strftime('%d.%m.%Y') }}
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Тип помещения</th>
+              <th>Описание</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for room_key, room_label in rooms_list %}
+            <tr>
+              <td>{{ room_label }}</td>
+              <td>
+                {% if room_key == 'workspace_open' %}
+                  Открытое пространство для работы
+                {% elif room_key == 'office_light' %}
+                  Небольшой кабинет для 1-2 человек
+                {% elif room_key == 'office_premium' %}
+                  Просторный кабинет с оборудованием
+                {% elif room_key == 'meeting_room' %}
+                  Комната для переговоров и встреч
+                {% endif %}
+              </td>
+              <td>
+                {% if available_rooms[room_label] == 'Свободно' %}
+                  <span class="status-badge status-available">✅ Свободно</span>
+                {% else %}
+                  <span class="status-badge status-booked">❌ Занято</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function checkToday() {
+      const today = new Date().toISOString().split('T')[0];
+      window.location.href = `/admin/reports/availability?date=${today}`;
+    }
+    
+    function checkTomorrow() {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      window.location.href = `/admin/reports/availability?date=${tomorrowStr}`;
+    }
+    
+    // Автоматически устанавливаем сегодняшнюю дату если не выбрана
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInput = document.getElementById('date');
+      if (!dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+      }
+    });
+  </script>
+  
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

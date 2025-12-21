@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ошибка — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+          <a href="{{ url_for('register') }}">Регистрация</a>
+          <a href="{{ url_for('login') }}">Вход</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card center" style="max-width: 600px; margin: 4rem auto; text-align: center;">
+      <div style="font-size: 5rem; color: var(--error); margin-bottom: 1.5rem;">
+        ⚠️
+      </div>
+      
+      <h1 style="margin-bottom: 1rem;">Ошибка</h1>
+      
+      <div class="alert alert-error" style="text-align: left;">
+        ❌ {{ error }}
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">
+          🏠 На главную
+        </a>
+        <a href="javascript:history.back()" class="btn btn-outline">
+          ↩️ Назад
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

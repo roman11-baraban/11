@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Главная — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking</a>
+        <nav>
+          <a href="{{ url_for('index') }}" class="active">Главная</a>
+          <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+          <a href="{{ url_for('register') }}">Регистрация</a>
+          <a href="{{ url_for('login') }}">Вход</a>
+          {% if user and user.is_admin %}
+          <a href="{{ url_for('admin_panel') }}">Админ-панель</a>
+          {% endif %}
+          {% if user %}
+          <a href="{{ url_for('logout') }}">Выход</a>
+          {% endif %}
+        </nav>
+        {% if user %}
+        <div class="user-info">
+          👤 {{ user.username }}
+          {% if user.is_admin %}👑{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% if user %}
+    <div class="card center">
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+        Добро пожаловать, {{ user.username }}! 
+        {% if user.is_admin %}👑{% endif %}
+      </h1>
+      <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">
+        {% if user.is_admin %}
+        Вы вошли как администратор. У вас есть доступ к панели управления.
+        {% else %}
+        Вы вошли в систему бронирования коворкинг-пространства.
+        {% endif %}
+      </p>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('bookings_view') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+          📅 Перейти к бронированию
+        </a>
+        
+        {% if user.is_admin %}
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-success" style="font-size: 1.1rem; padding: 1rem 2rem;">
+          ⚙️ Панель управления
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="card center" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none;">
+      <h1 style="font-size: 3rem; margin-bottom: 1rem; color: white;">Современный коворкинг</h1>
+      <p style="font-size: 1.3rem; margin-bottom: 2rem; opacity: 0.9;">
+        Пространство для продуктивной работы и вдохновения
+      </p>
+      <p style="margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+        Зарегистрируйтесь или войдите в систему, чтобы бронировать рабочие места, 
+        кабинеты и переговорные комнаты на удобное для вас время.
+      </p>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('register') }}" class="btn" style="background: white; color: var(--primary); font-size: 1.1rem; padding: 1rem 2rem;">
+          📝 Регистрация
+        </a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+          🔑 Вход
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Преимущества -->
+    <div class="card">
+      <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">
+        Почему выбирают нас?
+      </h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+        <div style="text-align: center; padding: 1.5rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">⚡</div>
+          <h3 style="margin-bottom: 0.75rem;">Быстрое онлайн-бронирование</h3>
+          <p style="color: var(--text-secondary);">
+            Забронируйте помещение за 2 минуты через удобный интерфейс
+          </p>
+        </div>
+        
+        <div style="text-align: center; padding: 1.5rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">💻</div>
+          <h3 style="margin-bottom: 0.75rem;">Современные рабочие места</h3>
+          <p style="color: var(--text-secondary);">
+            Эргономичная мебель и высокоскоростной интернет
+          </p>
+        </div>
+        
+        <div style="text-align: center; padding: 1.5rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">📅</div>
+          <h3 style="margin-bottom: 0.75rem;">Гибкие тарифы</h3>
+          <p style="color: var(--text-secondary);">
+            Бронирование по часам или дням по выгодным ценам
+          </p>
+        </div>
+        
+        <div style="text-align: center; padding: 1.5rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">🏢</div>
+          <h3 style="margin-bottom: 0.75rem;">4 типа помещений</h3>
+          <p style="color: var(--text-secondary);">
+            От открытых пространств до приватных кабинетов
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

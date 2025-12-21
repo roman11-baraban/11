@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Бронирование — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('bookings_view') }}" class="active">Бронирование</a>
+          <a href="{{ url_for('register') }}">Регистрация</a>
+          <a href="{{ url_for('login') }}">Вход</a>
+          {% if user and user.is_admin %}
+          <a href="{{ url_for('admin_panel') }}">Админ-панель</a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}">Выход</a>
+        </nav>
+        {% if user %}
+        <div class="user-info">
+          👤 {{ user.username }}
+          {% if user.is_admin %}👑{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% if error %}
+    <div class="alert alert-error">
+      ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Форма бронирования -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Новое бронирование</h2>
+      </div>
+
+      <form id="booking-form" method="POST" action="{{ url_for('book') }}">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="room_type">Тип помещения</label>
+            <select name="room_type" id="room_type" required>
+              <option value="">Выберите тип помещения</option>
+              <option value="workspace_open">Открытое рабочее место</option>
+              <option value="office_light">Кабинет «Лайт»</option>
+              <option value="office_premium">Кабинет «Премиум»</option>
+              <option value="meeting_room">Переговорная комната</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="start_date">Дата начала</label>
+            <input type="date" name="start_date" id="start_date" 
+                   min="{{ today }}" max="{{ max_date }}" 
+                   value="{{ today }}" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="duration_unit">Единица времени</label>
+            <select name="duration_unit" id="duration_unit" required>
+              <option value="days">Дни</option>
+              <option value="hours">Часы</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="duration_value">Длительность</label>
+            <input type="number" name="duration_value" id="duration_value" 
+                   value="1" min="1" max="30" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">
+            📅 Забронировать
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Альтернативные предложения -->
+    {% if alt_date or alt_types %}
+    <div class="alternatives">
+      <div class="alternatives-title">
+        💡 Альтернативные предложения
+      </div>
+      
+      <ul class="alternatives-list">
+        {% if alt_date %}
+        <li>
+          📅 Ближайшая доступная дата для выбранного типа: <strong>{{ alt_date.strftime('%d.%m.%Y') }}</strong>
+        </li>
+        {% endif %}
+        
+        {% if alt_types %}
+        <li>
+          🏢 На выбранную дату доступны другие типы помещений:
+        </li>
+        {% for type in alt_types %}
+        <li style="margin-left: 2rem;">
+          ✅ <strong>{{ type }}</strong>
+        </li>
+        {% endfor %}
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Мои заявки -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Мои заявки</h2>
+        <div class="card-subtitle">
+          История ваших бронирований
+        </div>
+      </div>
+
+      {% if bookings %}
+      <ul class="bookings-list">
+        {% for b in bookings %}
+        <li class="booking-item">
+          <div class="booking-header">
+            <span class="booking-id">#{{ b[0] }}</span>
+            <span class="booking-status active">Активна</span>
+          </div>
+          
+          <div class="booking-details">
+            <div class="booking-detail">
+              🏢
+              <div>
+                <div class="booking-label">Тип помещения</div>
+                <div class="booking-value">{{ b[1] }}</div>
+              </div>
+            </div>
+            
+            <div class="booking-detail">
+              📅
+              <div>
+                <div class="booking-label">Дата начала</div>
+                <div class="booking-value">{{ b[2] }}</div>
+              </div>
+            </div>
+            
+            <div class="booking-detail">
+              ⏱️
+              <div>
+                <div class="booking-label">Длительность</div>
+                <div class="booking-value">{{ b[4] }} {{ b[3] }}</div>
+              </div>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>У вас пока нет заявок</h3>
+        <p>Создайте свое первое бронирование с помощью формы выше</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>Ы

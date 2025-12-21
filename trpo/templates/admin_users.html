@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Пользователи — Coworking Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking Admin</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('admin_panel') }}">Панель управления</a>
+          <a href="{{ url_for('admin_reports_bookings') }}">Отчеты по заявкам</a>
+          <a href="{{ url_for('admin_reports_availability') }}">Доступность</a>
+          <a href="{{ url_for('admin_users') }}" class="active">Пользователи</a>
+          <a href="{{ url_for('bookings_view') }}">Мои бронирования</a>
+          <a href="{{ url_for('logout') }}">Выход</a>
+        </nav>
+        <div class="user-info">
+          👑 {{ user.username }} (Админ)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Управление пользователями</h1>
+      <p class="page-description">Просмотр учетных записей пользователей</p>
+    </div>
+
+    <!-- Таблица пользователей -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Список пользователей</h2>
+        <div class="card-subtitle">
+          {{ users|length }} пользователей в системе
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Логин</th>
+              <th>Роль</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user[0] }}</td>
+              <td>{{ user[1] }}</td>
+              <td>
+                {% if user[2] %}
+                  <span class="status-badge" style="background: #fff3e0; color: #f57c00;">
+                    👑 Администратор
+                  </span>
+                {% else %}
+                  <span class="status-badge">👤 Пользователь</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Статистика пользователей -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Статистика пользователей</h2>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">{{ users|length }}</div>
+          <div class="stat-label">Всего пользователей</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">👑</div>
+          <div class="stat-value">
+            {% set admins = 0 %}
+            {% for user in users %}
+              {% if user[2] %}
+                {% set admins = admins + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ admins }}
+          </div>
+          <div class="stat-label">Администраторов</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">👤</div>
+          <div class="stat-value">
+            {{ users|length - admins }}
+          </div>
+          <div class="stat-label">Обычных пользователей</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

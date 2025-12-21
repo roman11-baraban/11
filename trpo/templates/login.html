@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Вход — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('bookings_view') }}">Бронирование</a>
+          <a href="{{ url_for('register') }}">Регистрация</a>
+          <a href="{{ url_for('login') }}" class="active">Вход</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card" style="max-width: 500px; margin: 2rem auto;">
+      <div class="card-header">
+        <h2 class="card-title">Вход в систему</h2>
+      </div>
+      
+      {% if error %}
+      <div class="alert alert-error">
+        ❌ {{ error }}
+      </div>
+      {% endif %}
+      
+      {% if success %}
+      <div class="alert alert-success">
+        ✅ {{ success }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+          <label for="username">Логин</label>
+          <input type="text" name="username" id="username" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input type="password" name="password" id="password" required>
+        </div>
+        
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">
+            🔑 Войти
+          </button>
+        </div>
+      </form>
+      
+      <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+        <p style="color: var(--text-secondary);">Нет аккаунта?</p>
+        <a href="{{ url_for('register') }}" class="btn btn-outline" style="margin-top: 0.5rem;">
+          📝 Зарегистрироваться
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

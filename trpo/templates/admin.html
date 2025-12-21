@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Админ-панель — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking Admin</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('admin_panel') }}" class="active">Панель управления</a>
+          <a href="{{ url_for('admin_reports_bookings') }}">Отчеты по заявкам</a>
+          <a href="{{ url_for('admin_reports_availability') }}">Доступность</a>
+          <a href="{{ url_for('admin_users') }}">Пользователи</a>
+          <a href="{{ url_for('bookings_view') }}">Мои бронирования</a>
+          <a href="{{ url_for('logout') }}">Выход</a>
+        </nav>
+        <div class="user-info">
+          👑 {{ user.username }} (Админ)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Панель управления</h1>
+      <p class="page-description">Управление коворкинг-пространством и мониторинг системы</p>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Всего пользователей</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ total_bookings }}</div>
+        <div class="stat-label">Всего заявок</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ today_bookings }}</div>
+        <div class="stat-label">Заявок сегодня</div>
+      </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Быстрые действия</h2>
+      </div>
+      
+      <div class="btn-group">
+        <a href="{{ url_for('admin_reports_bookings') }}" class="btn btn-primary">
+          📊 Отчеты по заявкам
+        </a>
+        <a href="{{ url_for('admin_reports_availability') }}" class="btn btn-secondary">
+          🔍 Проверить доступность
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-outline">
+          👥 Управление пользователями
+        </a>
+      </div>
+    </div>
+
+    <!-- Последние заявки -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Последние заявки</h2>
+        <a href="{{ url_for('admin_reports_bookings') }}" class="btn btn-outline">Показать все</a>
+      </div>
+      
+      {% set recent_bookings = get_all_bookings(end_date=date.today().isoformat()) %}
+      {% if recent_bookings %}
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Тип помещения</th>
+                <th>Дата</th>
+                <th>Длительность</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in recent_bookings[:5] %}
+              <tr>
+                <td>#{{ booking[0] }}</td>
+                <td>{{ booking[5] }}</td>
+                <td>
+                  {% if booking[1] == 'workspace_open' %}Открытое рабочее место
+                  {% elif booking[1] == 'office_light' %}Кабинет «Лайт»
+                  {% elif booking[1] == 'office_premium' %}Кабинет «Премиум»
+                  {% elif booking[1] == 'meeting_room' %}Переговорная комната
+                  {% else %}{{ booking[1] }}{% endif %}
+                </td>
+                <td>{{ booking[2] }}</td>
+                <td>{{ booking[4] }} {{ booking[3] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <p>Нет заявок за последний период</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

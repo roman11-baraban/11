@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Отчеты по заявкам — Coworking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ url_for('index') }}" class="logo">Coworking Admin</a>
+        <nav>
+          <a href="{{ url_for('index') }}">Главная</a>
+          <a href="{{ url_for('admin_panel') }}">Панель управления</a>
+          <a href="{{ url_for('admin_reports_bookings') }}" class="active">Отчеты по заявкам</a>
+          <a href="{{ url_for('admin_reports_availability') }}">Доступность</a>
+          <a href="{{ url_for('admin_users') }}">Пользователи</a>
+          <a href="{{ url_for('bookings_view') }}">Мои бронирования</a>
+          <a href="{{ url_for('logout') }}">Выход</a>
+        </nav>
+        <div class="user-info">
+          👑 {{ user.username }} (Админ)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Отчеты по заявкам</h1>
+      <p class="page-description">Просмотр и анализ всех заявок на бронирование</p>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters">
+      <form method="GET" action="{{ url_for('admin_reports_bookings') }}">
+        <div class="filter-group">
+          <div class="filter-item">
+            <label for="start_date">Дата начала:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required>
+          </div>
+          
+          <div class="filter-item">
+            <label for="end_date">Дата окончания:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required>
+          </div>
+          
+          <div class="filter-item">
+            <button type="submit" class="btn btn-primary">
+              🔍 Применить фильтр
+            </button>
+            <a href="{{ url_for('admin_reports_bookings') }}" class="btn btn-outline">
+              🔄 Сбросить
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Сводная информация -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Сводная информация</h2>
+        <div class="card-subtitle">
+          Период: {{ start_date }} — {{ end_date }}
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value">{{ bookings|length }}</div>
+          <div class="stat-label">Всего заявок</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">
+            {% set unique_users = [] %}
+            {% for booking in bookings %}
+              {% if booking[5] not in unique_users %}
+                {% set _ = unique_users.append(booking[5]) %}
+              {% endif %}
+            {% endfor %}
+            {{ unique_users|length }}
+          </div>
+          <div class="stat-label">Уникальных пользователей</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Таблица заявок -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Список заявок</h2>
+        <div class="card-subtitle">
+          {{ bookings|length }} заявок найдено
+        </div>
+      </div>
+      
+      {% if bookings %}
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Тип помещения</th>
+                <th>Дата начала</th>
+                <th>Длительность</th>
+                <th>Единица</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+              <tr>
+                <td>#{{ booking[0] }}</td>
+                <td>{{ booking[5] }}</td>
+                <td>
+                  {% if booking[1] == 'workspace_open' %}Открытое рабочее место
+                  {% elif booking[1] == 'office_light' %}Кабинет «Лайт»
+                  {% elif booking[1] == 'office_premium' %}Кабинет «Премиум»
+                  {% elif booking[1] == 'meeting_room' %}Переговорная комната
+                  {% else %}{{ booking[1] }}{% endif %}
+                </td>
+                <td>{{ booking[2] }}</td>
+                <td>{{ booking[4] }}</td>
+                <td>
+                  {% if booking[3] == 'days' %}
+                    <span class="status-badge">Дни</span>
+                  {% else %}
+                    <span class="status-badge">Часы</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <h3>Заявки не найдены</h3>
+          <p>Попробуйте изменить параметры фильтрации</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script>
+    // Устанавливаем даты по умолчанию
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoStr = weekAgo.toISOString().split('T')[0];
+      
+      if (!document.getElementById('start_date').value) {
+        document.getElementById('start_date').value = weekAgoStr;
+      }
+      if (!document.getElementById('end_date').value) {
+        document.getElementById('end_date').value = today;
+      }
+    });
+  </script>
+  
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
